@@ -1,0 +1,198 @@
+/* Temel Ayarlar */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #87CEEB;
+    font-family: 'Montserrat', sans-serif;
+    width: 440px;
+    height: 956px;
+    overflow: hidden;
+}
+
+.game-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    max-width: 440px;
+    background-color: #007FFF;
+}
+
+/* Bronze I ve Profil Resmi */
+.bronze-wrapper {
+  display: flex;
+  justify-content: start;
+  position: absolute; /* Sabit pozisyon için absolute ekledik */
+  top: 20px; /* Arka plan, fotoğraf ve yazıyı top: 30px yaptık */
+  margin-left: -10px;
+}
+
+.bronze-background {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #85E46D; /* İstenilen arka plan rengi */
+  padding: 5px;
+  border-radius: 10px;
+  gap: 8px;
+  width: 190px; /* Arka plan genişliği */
+  height: 50px; /* Arka plan yüksekliği */
+}
+
+.bronze-pic {
+  width: 100px; /* Fotoğraf boyutu */
+  height: 90px; 
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 15px; /* Fotoğrafın hizalamasını koruduk */
+}
+
+.bronze-text {
+  font-size: 22px; /* Yazı boyutu */
+  font-family: 'VT323'; /* Yazı tipi */
+  font-weight: regular;
+  color: rgb(0, 0, 0);
+  margin: 0;
+  padding-bottom: 0px; /* Yazıyı aynı hizada bıraktık */
+}
+
+
+
+
+/* Bulutlar */
+.cloud {
+    position: absolute;
+    width: 121px;
+    height: 108px;
+    z-index: -1;
+}
+
+.cloud-1 {
+    top: 44px;
+    left: 92px;
+}
+
+.cloud-2 {
+    top: 35px;
+    left: 240px;
+}
+
+.cloud-3 {
+    top: 275px;
+    left: 20px;
+}
+
+.cloud-4 {
+    top: 200px;
+    left: 220px;
+}
+
+/* Skor Bölümü */
+.score-box {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.icon {
+    width: 25px;
+    height: 25px;
+}
+
+/* Anahtar ve Dosya Kutuları */
+.key-background {
+  background-color: #FFFF44;
+  width: 110px; /* Genişliği küçülttük */
+  height: 35px;
+  position: absolute;
+  top: 63px;
+  left: 270px; /* Sol tarafa biraz daha kaydırıldı */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 0 8px;
+}
+
+.key-icon {
+  width: 25px; /* İkonu küçülttük */
+  height: 22px;
+}
+
+.score-text {
+  font-family: 'Montserrat'; /* Yazı tipi */
+  font-size: 20px; /* Yazı boyutu */
+  color: #685d4e; /* Yazı rengi */
+  font-weight: extrabold; /* Kalın yazı */
+}
+
+
+.file-background {
+  background-color: #C5DB63;
+  width: 60px;
+  height: 27px;
+  position: absolute;
+  top: 110px;
+  left: 287px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 5px;
+  padding: 0 5px;
+}
+
+.file-icon {
+  width: 21px;
+  height: 21px;
+}
+
+/* Karakter ve Gizem Barı */
+.character-section {
+  position: absolute;
+  width: 307px;
+  height: 328px;
+}
+
+.character-img {
+  width: 100%;
+  height: 100%;
+  margin-bottom: 15px;
+}
+
+.green-bar {
+  background-color: #A8E4A0;
+  width: 80%;
+  padding: 10px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+}
+
+/* Alt Menü */
+.menu-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 55px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 3px 0;
+  z-index: 10;
+  border-top: 2px solid #ddd;
+}
+
+.menu-icon {
+  width: 50px;
+  margin-bottom: 0;
+  margin-top: 2px;
+}
+
+.menu-text {
+  margin: 0;
+  font-size: 10px;
+  margin-top: 0;
+}

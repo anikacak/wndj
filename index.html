@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=440, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Oyun Ekranı</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
+  <style>
+    body { background-color: #007FFF; }
+    .game-container { position: relative; z-index: 1; }
+    .computer { position: absolute; top: 350px; left: 0px; width: 121px; height: 85px; z-index: 2; }
+    .green-bar { position: absolute; top: 640px; left: 35px; width: 320px; height: 40px; background-color: #a0e676; border-radius: 20px; z-index: 3; cursor: pointer; }
+    .character-img { width: 220px; height: 240px; position: absolute; top: 0px; left: 10px; z-index: 2; }
+    .bronze-wrapper, .score-box { z-index: 3; }
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 5;
+    }
+    #modal-box {
+      width: 250px;
+      height: 200px;
+      background-color: black;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 5px solid #00FF00;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 24px;
+      color: #00FF00;
+      z-index: 6;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    #modal-box p { animation: blink 1s infinite; }
+
+    /* Alt Menü Stili */
+    .bottom-menu {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background-color: #FFFFFF; /* Beyaz Arka Plan */
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+      box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1); /* Gölge efekti eklenebilir */
+    }
+
+    .bottom-menu img {
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container mx-auto">
+    <div class="bronze-wrapper">
+      <div class="bronze-background">
+        <img src="bronzz-removebg-preview.png" alt="Bronze" class="bronze-pic">
+        <span class="bronze-text">bronze I</span>
+      </div>
+    </div>
+
+    <div class="score-box">
+      <div class="key-background">
+        <img src="lupa2-removebg-preview.png" alt="Anahtar" class="icon key-icon">
+        <span class="score-text" id="lupa-score">100</span>
+      </div>
+    </div>
+
+    <div class="character-section position-absolute" style="top: 400px; left: 80px; z-index: 2;">
+      <img 
+        src="DALLE2024-10-1501.55.06-Asimplepixelartofadetectivestandingwithacompletedface.Thedetectiveiswearingatrenchcoatandfedorahatwithaclearminimalisticfa-ezgif.com-webp-to-jpg-converter-removebg-preview.png"
+        alt="Dedektif"
+        class="character-img"
+        style="width: 220px; height: 240px;">
+    </div>
+
+    <img src="bulut-removebg-preview.png" alt="Bulut" class="cloud cloud-1">
+    <img src="bulut-removebg-preview.png" alt="Bulut" class="cloud cloud-2">
+    <img src="bulut-removebg-preview.png" alt="Bulut" class="cloud cloud-3">
+    <img src="bulut-removebg-preview.png" alt="Bulut" class="cloud cloud-4">
+
+    <a href="#" id="computer-link">
+      <img src="komputer-removebg-preview.png" alt="Bilgisayar" class="computer">
+    </a>
+
+    <div class="green-bar d-flex justify-content-between align-items-center px-3" id="green-bar">
+      <span class="fw-bold">Gizemler</span>
+      <span id="coin-amount">1080 / 1080</span>
+      <span id="timer">180</span>
+    </div>
+
+     <!-- Modal HTML -->
+     <div id="modal-overlay">
+      <div id="modal-box">
+        <p id="remaining-time"></p>
+        <!-- Modalı kapatmak için X butonu -->
+        <button id="close-modal" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #FFFFFF; font-size: 24px; cursor: pointer;">X</button>
+      </div>
+    </div>
+      
+
+    <!-- Alt Menü -->
+    <div class="bottom-menu">
+      <a href="index.html"><img src="home-removebg-preview.png" alt="Home"></a>
+      <a href="tasks.html"><img src="tasks-removebg-preview.png" alt="Tasks"></a>
+      <a href="frend.html"><img src="frends-removebg-preview.png" alt="Friends"></a>
+      <a href="wallet.html"><img src="wallet-removebg-preview.png" alt="Wallet"></a>
+    </div>
+    
+<script type="module" src="/src/main.tsx">
+
+let coinBalance = parseInt(localStorage.getItem('coinBalance')) || 0;  // Coin balance in general
+let lupaScore = parseInt(localStorage.getItem('lupaScore')) || 0;  // Retrieve lupaScore from localStorage
+let mysteryProgress = parseFloat(localStorage.getItem('mysteryProgress')) || 0;
+let mysteryComplete = false;
+const maxMystery = 1080; 
+let lastUpdate = parseInt(localStorage.getItem('lastUpdate')) || Date.now(); 
+let computerCooldown = parseInt(localStorage.getItem('computerCooldown')) || 0;
+let timerInterval;
+
+// Start the timer and track progress
+function startTimer() {
+  const now = Date.now();
+  const elapsed = (now - lastUpdate) / 1000;
+  mysteryProgress += elapsed * 0.1;
+
+  if (mysteryProgress >= maxMystery) {
+    completeMystery();  // Call to complete the mystery
+  } else {
+    updateProgress();
+    timerInterval = setInterval(collectCoins, 1000);
+  }
+}
+
+// Function to collect coins every second
+function collectCoins() {
+  if (mysteryComplete) return;
+
+  mysteryProgress += 0.1;
+  if (mysteryProgress >= maxMystery) {
+    completeMystery();  // Complete the mystery
+  } else {
+    updateProgress();
+  }
+}
+
+// Complete the mystery and add coins to both coinBalance and lupaScore
+function completeMystery() {
+  mysteryProgress = maxMystery;  // Set progress to max
+  updateProgress();  // Update UI before reset
+
+  // Add 1080 coins to both coinBalance and lupaScore
+  coinBalance += maxMystery;
+  lupaScore += maxMystery;
+
+  // Save updated balances to localStorage
+  localStorage.setItem('coinBalance', coinBalance);
+  localStorage.setItem('lupaScore', lupaScore);
+
+  // Update the UI with the new lupaScore and coin amount
+  document.getElementById('lupa-score').innerText = lupaScore;
+  document.getElementById('coin-amount').innerText = `${mysteryProgress.toFixed(1)} / ${maxMystery}`;
+
+  // Reset mystery progress and restart the timer
+  resetMystery();
+}
+
+// Reset the mystery progress and restart timer
+function resetMystery() {
+  clearInterval(timerInterval);
+  mysteryProgress = 0;
+  mysteryComplete = false;
+
+  // Save reset progress to localStorage
+  localStorage.setItem('mysteryProgress', mysteryProgress);
+  localStorage.setItem('lastUpdate', Date.now());
+
+  // Restart the timer
+  startTimer();
+}
+
+// Update the UI with the latest progress
+function updateProgress() {
+  document.getElementById('coin-amount').innerText =
+    `${mysteryProgress.toFixed(1)} / ${maxMystery}`;
+  localStorage.setItem('mysteryProgress', mysteryProgress);  // Save progress
+  localStorage.setItem('lastUpdate', Date.now());
+}
+
+// Handle computer click with cooldown logic
+function computerClick(event) {
+  event.preventDefault();
+  const now = Date.now();
+  const elapsedComputerTime = Math.floor((now - computerCooldown) / 1000);
+  const remainingComputerTime = 3600 - elapsedComputerTime;  // 1-hour cooldown
+
+  if (remainingComputerTime > 0) {
+    showModal(remainingComputerTime);  // Show modal if cooldown is active
+  } else {
+    window.location.href = 'computer.html';  // Redirect if cooldown is over
+    computerCooldown = now;
+    localStorage.setItem('computerCooldown', computerCooldown);
+  }
+}
+
+// Show modal with remaining cooldown time
+function showModal(secondsLeft) {
+  const modalOverlay = document.getElementById('modal-overlay');
+  modalOverlay.style.display = 'block';
+
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
+  document.getElementById('remaining-time').innerText =
+    `Kalan süre: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+  document.getElementById('close-modal').addEventListener('click', () => {
+    modalOverlay.style.display = 'none';
+  });
+}
+
+// Start the timer when the page loads
+window.onload = () => {
+  // Display the latest coin balance and lupaScore on load
+  document.getElementById('coin-amount').innerText =
+    `${mysteryProgress.toFixed(1)} / ${maxMystery}`;
+  document.getElementById('lupa-score').innerText = lupaScore;
+
+  if (!mysteryComplete) startTimer();  // Only start timer if mystery is not complete
+  document.getElementById('computer-link').addEventListener('click', computerClick);
+};
+
+// Save the last update time before the page unloads
+window.onbeforeunload = () => {
+  localStorage.setItem('lastUpdate', Date.now());
+};
+
+</script>
+    
+ 
+</body>
+</html>

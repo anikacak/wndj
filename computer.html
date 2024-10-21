@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Kelime Tahmin Oyunu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #1a1a1a;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .game-over-container {
+      background-color: #333;
+      padding: 40px;
+      border: 5px solid #00ff00;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(0, 255, 0, 0.5);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .game-over-title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #00ff00;
+    }
+
+    .game-over-message {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #00ff00;
+    }
+
+    .word-display {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      letter-spacing: 5px;
+      color: #00ff00;
+    }
+
+    .input-field {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      text-align: center;
+      background-color: #1a1a1a;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+    }
+
+    .btn-custom {
+      background-color: #00ff00;
+      color: #000;
+    }
+
+    .btn-custom:hover {
+      background-color: #00cc00;
+    }
+
+    .score-display {
+      font-size: 1.2rem;
+      color: #00ff00;
+    }
+
+    .timer {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #ff0000;
+    }
+
+    .message-display {
+      font-size: 1rem;
+      color: #ff0000;
+      margin-bottom: 10px;
+    }
+
+    /* Mobil cihazlar için */
+    @media (max-width: 600px) {
+      .game-over-title {
+        font-size: 1.8rem;
+      }
+      .word-display {
+        font-size: 1.5rem;
+      }
+      .input-field {
+        font-size: 1rem;
+      }
+      .score-display {
+        font-size: 1rem;
+      }
+      .timer {
+        font-size: 0.9rem;
+      }
+      .message-display {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-over-container" id="languageSelectionContainer">
+    <h1 class="game-over-title">Select Language / Dil Seç</h1>
+    <button class="btn btn-custom" onclick="startGame('english')">English</button>
+    <button class="btn btn-custom" onclick="startGame('turkish')">Türkçe</button>
+  </div>
+
+  <div class="game-over-container d-none" id="gameContainer">
+    <h1 class="game-over-title" id="gameTitle">Retro Kelime Tahmin</h1>
+    <p class="game-over-message">Eksik harfleri doldurarak doğru kelimeleri bul!</p>
+
+    <!-- Kelimenin gösterileceği yer -->
+    <div class="word-display" id="wordDisplay">_____</div>
+
+    <!-- İpucu -->
+    <p class="game-over-message" id="hintDisplay">İpucu: ____</p>
+
+    <!-- Kullanıcı tahmini -->
+    <input type="text" class="form-control input-field" id="userInput" placeholder="Tahminini yaz" autofocus>
+    <button class="btn btn-custom" onclick="checkWord()">Tahmini Kontrol Et</button>
+
+    <!-- Puan ve sonuçlar -->
+    <p class="score-display" id="scoreDisplay">Skor: 0</p>
+    <p class="timer" id="timerDisplay">Kalan Süre: 180 saniye</p>
+    <p class="message-display" id="messageDisplay"></p>
+    <button class="btn btn-custom d-none" id="finishBtn">Oyunu Bitir</button>
+  </div>
+
+  <script>
+    const englishWords = [
+    { word: "Hello", points: 1, hint: "A greeting" },
+{ word: "Cat", points: 1, hint: "Meows" },
+{ word: "Dog", points: 1, hint: "Barks, loyal pet" },
+{ word: "Run", points: 2, hint: "Move quickly" },
+{ word: "Eat", points: 2, hint: "Consume food" },
+{ word: "Book", points: 2, hint: "Something you read" },
+{ word: "Big", points: 2, hint: "Opposite of small" },
+{ word: "Small", points: 3, hint: "Opposite of big" },
+{ word: "Fast", points: 3, hint: "Quick speed" },
+{ word: "Slow", points: 3, hint: "Not fast" },
+{ word: "Car", points: 3, hint: "Vehicle with wheels" },
+{ word: "House", points: 3, hint: "A place to live" },
+{ word: "Red", points: 4, hint: "Color of fire" },
+{ word: "Blue", points: 4, hint: "Color of the sky" },
+{ word: "Happy", points: 4, hint: "Feeling joy" },
+{ word: "Sad", points: 4, hint: "Feeling sorrow" },
+{ word: "Chair", points: 4, hint: "You sit on it" },
+{ word: "Table", points: 4, hint: "Used to eat or work on" },
+{ word: "Water", points: 5, hint: "Essential liquid" },
+{ word: "Apple", points: 5, hint: "A fruit, red or green" },
+{ word: "Dance", points: 5, hint: "Move to music" },
+{ word: "School", points: 5, hint: "Place for learning" },
+{ word: "Child", points: 5, hint: "Young human" },
+{ word: "Mother", points: 5, hint: "Female parent" },
+{ word: "Father", points: 6, hint: "Male parent" },
+{ word: "Sister", points: 6, hint: "Female sibling" },
+{ word: "Brother", points: 6, hint: "Male sibling" },
+{ word: "Friend", points: 6, hint: "Close companion" },
+{ word: "Family", points: 6, hint: "Related group of people" },
+{ word: "Work", points: 6, hint: "Effort or labor" },
+{ word: "Study", points: 6, hint: "Learn or research" },
+{ word: "Teacher", points: 6, hint: "Gives lessons" },
+{ word: "Student", points: 6, hint: "Learns from teacher" },
+{ word: "Light", points: 7, hint: "Opposite of dark" },
+{ word: "Dark", points: 7, hint: "Lack of light" },
+{ word: "Strong", points: 7, hint: "Having power" },
+{ word: "Weak", points: 7, hint: "Lacking strength" },
+{ word: "Funny", points: 7, hint: "Makes you laugh" },
+{ word: "Angry", points: 7, hint: "Feeling mad" },
+{ word: "Hungry", points: 7, hint: "Need food" },
+{ word: "Thirsty", points: 7, hint: "Need water" },
+{ word: "Mountain", points: 8, hint: "Tall natural landform" },
+{ word: "River", points: 8, hint: "Flowing body of water" },
+{ word: "Country", points: 8, hint: "Nation or state" },
+{ word: "City", points: 8, hint: "Large populated area" },
+{ word: "Village", points: 8, hint: "Small community" },
+{ word: "Dream", points: 8, hint: "Thoughts while sleeping" },
+{ word: "Idea", points: 8, hint: "A thought or concept" },
+{ word: "Music", points: 8, hint: "Sounds that are pleasant" },
+{ word: "Noise", points: 8, hint: "Loud, unpleasant sound" },
+{ word: "Quiet", points: 9, hint: "No sound" },
+{ word: "Dangerous", points: 9, hint: "Not safe" },
+{ word: "Beautiful", points: 9, hint: "Very attractive" },
+{ word: "Important", points: 9, hint: "Has great value" },
+{ word: "Different", points: 9, hint: "Not the same" },
+{ word: "Difficult", points: 10, hint: "Not easy" },
+{ word: "Comfortable", points: 10, hint: "Pleasing and relaxing" },
+{ word: "Confident", points: 10, hint: "Sure of oneself" },
+{ word: "Curious", points: 10, hint: "Eager to learn" },
+{ word: "Careful", points: 10, hint: "Paying close attention" },
+{ word: "Remember", points: 11, hint: "Keep in mind" },
+{ word: "Forget", points: 11, hint: "Fail to remember" },
+{ word: "Believe", points: 11, hint: "Trust something is true" },
+{ word: "Understand", points: 11, hint: "Comprehend" },
+{ word: "Explain", points: 11, hint: "Make something clear" },
+{ word: "Imagine", points: 11, hint: "Create a mental picture" },
+{ word: "Surprise", points: 12, hint: "An unexpected event" },
+{ word: "Discover", points: 12, hint: "Find something new" },
+{ word: "Achieve", points: 12, hint: "Reach a goal" },
+{ word: "Experience", points: 12, hint: "Gain through living" },
+{ word: "Adventure", points: 12, hint: "Exciting journey" },
+{ word: "Continue", points: 13, hint: "Keep going" },
+{ word: "Improve", points: 13, hint: "Make better" },
+{ word: "Create", points: 13, hint: "Bring something into being" },
+{ word: "Complete", points: 13, hint: "Finish" },
+{ word: "Celebrate", points: 13, hint: "Enjoy success" },
+{ word: "Recognize", points: 13, hint: "Identify something known" },
+{ word: "Communicate", points: 14, hint: "Share information" },
+{ word: "Participate", points: 14, hint: "Take part in something" },
+{ word: "Appreciate", points: 14, hint: "Show gratitude" },
+{ word: "Investigate", points: 14, hint: "Look into deeply" },
+{ word: "Challenge", points: 14, hint: "A difficult task" },
+{ word: "Knowledge", points: 15, hint: "Facts and information" },
+{ word: "Opportunity", points: 15, hint: "A chance" },
+{ word: "Responsibility", points: 15, hint: "Duty or obligation" },
+{ word: "Agreement", points: 15, hint: "Mutual understanding" },
+{ word: "Environment", points: 15, hint: "Surroundings" },
+{ word: "Development", points: 16, hint: "Growth or progress" },
+{ word: "Conversation", points: 16, hint: "Exchange of words" },
+{ word: "Information", points: 16, hint: "Facts or data" },
+{ word: "Transportation", points: 16, hint: "Movement from place to place" },
+{ word: "Organization", points: 17, hint: "A structured group" },
+{ word: "Independence", points: 17, hint: "Freedom from control" },
+{ word: "Transformation", points: 17, hint: "Complete change" },
+{ word: "Improvement", points: 17, hint: "Making something better" },
+{ word: "Conservation", points: 18, hint: "Preserving something" },
+{ word: "Cooperation", points: 18, hint: "Working together" },
+{ word: "Civilization", points: 18, hint: "A developed society" },
+{ word: "Representation", points: 19, hint: "Acting on behalf of others" },
+{ word: "Communication", points: 20, hint: "Exchanging information" }
+
+    ];
+
+    const turkishWords = [
+    { word: "Merhaba", points: 1, hint: "Selamlaşma" },
+{ word: "Kedi", points: 1, hint: "Evcil hayvan, miyavlar" },
+{ word: "Köpek", points: 1, hint: "Sadık hayvan, havlar" },
+{ word: "Koş", points: 2, hint: "Hızlı hareket et" },
+{ word: "Ye", points: 2, hint: "Beslenme eylemi" },
+{ word: "Kitap", points: 2, hint: "Okunur" },
+{ word: "Büyük", points: 2, hint: "Küçüğün zıttı" },
+{ word: "Küçük", points: 3, hint: "Büyüğün zıttı" },
+{ word: "Hızlı", points: 3, hint: "Çabuk hareket" },
+{ word: "Yavaş", points: 3, hint: "Ağır hareket" },
+{ word: "Araba", points: 3, hint: "Tekerlekli ulaşım aracı" },
+{ word: "Ev", points: 3, hint: "İçinde yaşanır" },
+{ word: "Kırmızı", points: 4, hint: "Bir renk, ateş" },
+{ word: "Mavi", points: 4, hint: "Bir renk, gökyüzü" },
+{ word: "Mutlu", points: 4, hint: "Sevinçli duygu" },
+{ word: "Üzgün", points: 4, hint: "Hüzünlü his" },
+{ word: "Sandalye", points: 4, hint: "Oturma eşyası" },
+{ word: "Masa", points: 4, hint: "Çalışma veya yemek için" },
+{ word: "Su", points: 5, hint: "Hayati sıvı" },
+{ word: "Elma", points: 5, hint: "Bir meyve, kırmızı veya yeşil" },
+{ word: "Dans", points: 5, hint: "Ritmik hareket" },
+{ word: "Okul", points: 5, hint: "Eğitim için yer" },
+{ word: "Çocuk", points: 5, hint: "Küçük insan" },
+{ word: "Anne", points: 5, hint: "Kadın ebeveyn" },
+{ word: "Baba", points: 6, hint: "Erkek ebeveyn" },
+{ word: "Kız kardeş", points: 6, hint: "Aile üyesi, kız" },
+{ word: "Erkek kardeş", points: 6, hint: "Aile üyesi, erkek" },
+{ word: "Arkadaş", points: 6, hint: "Yakın dost" },
+{ word: "Aile", points: 6, hint: "Birbirine bağlı kişiler" },
+{ word: "Çalış", points: 6, hint: "Emek ver" },
+{ word: "Ders", points: 6, hint: "Öğretim birimi" },
+{ word: "Öğretmen", points: 6, hint: "Ders veren kişi" },
+{ word: "Öğrenci", points: 6, hint: "Ders alan kişi" },
+{ word: "Işık", points: 7, hint: "Aydınlatma sağlar" },
+{ word: "Karanlık", points: 7, hint: "Işığın zıttı" },
+{ word: "Güçlü", points: 7, hint: "Fiziksel veya duygusal kuvvet" },
+{ word: "Zayıf", points: 7, hint: "Kuvvetsiz" },
+{ word: "Komik", points: 7, hint: "Gülünç" },
+{ word: "Kızgın", points: 7, hint: "Öfkeli" },
+{ word: "Aç", points: 7, hint: "Yemek isteği" },
+{ word: "Susuz", points: 7, hint: "Su ihtiyacı" },
+{ word: "Dağ", points: 8, hint: "Yüksek doğal yapı" },
+{ word: "Nehir", points: 8, hint: "Sürekli akan su" },
+{ word: "Ülke", points: 8, hint: "Bir coğrafi bölge, devlet" },
+{ word: "Şehir", points: 8, hint: "Büyük yerleşim yeri" },
+{ word: "Köy", points: 8, hint: "Küçük yerleşim yeri" },
+{ word: "Rüya", points: 8, hint: "Uyurken görülen" },
+{ word: "Fikir", points: 8, hint: "Düşünce" },
+{ word: "Müzik", points: 8, hint: "Duygusal sesler" },
+{ word: "Gürültü", points: 8, hint: "Yüksek ses" },
+{ word: "Sessiz", points: 9, hint: "Hiç ses yok" },
+{ word: "Tehlikeli", points: 9, hint: "Riskli" },
+{ word: "Güzel", points: 9, hint: "Hoş görünüşlü" },
+{ word: "Önemli", points: 9, hint: "Değerli" },
+{ word: "Farklı", points: 9, hint: "Diğerinden değişik" },
+{ word: "Zor", points: 10, hint: "Kolay olmayan" },
+{ word: "Rahat", points: 10, hint: "Stresiz" },
+{ word: "Kendine güvenen", points: 10, hint: "Kendi gücüne inanan" },
+{ word: "Meraklı", points: 10, hint: "İlgi duyan" },
+{ word: "Dikkatli", points: 10, hint: "Odaklanan" },
+{ word: "Hatırla", points: 11, hint: "Geçmişi aklına getir" },
+{ word: "Unut", points: 11, hint: "Aklından çıkar" },
+{ word: "İnan", points: 11, hint: "Güven duymak" },
+{ word: "Anla", points: 11, hint: "Kavramak" },
+{ word: "Açıkla", points: 11, hint: "Detaylandırmak" },
+{ word: "Hayal et", points: 11, hint: "Zihinde canlandırmak" },
+{ word: "Şaşırt", points: 12, hint: "Beklenmedik bir şey yap" },
+{ word: "Keşfet", points: 12, hint: "Yeni bir şey bul" },
+{ word: "Başar", points: 12, hint: "Hedefine ulaş" },
+{ word: "Deneyim", points: 12, hint: "Yaşayarak öğrenmek" },
+{ word: "Macera", points: 12, hint: "Heyecanlı bir olay" },
+{ word: "Devam et", points: 13, hint: "Yarıda bırakma" },
+{ word: "Geliştir", points: 13, hint: "Daha iyi hale getir" },
+{ word: "Yarat", points: 13, hint: "Yeni bir şey oluştur" },
+{ word: "Tamamla", points: 13, hint: "Bitir" },
+{ word: "Kutla", points: 13, hint: "Başarıyı anmak" },
+{ word: "Tanı", points: 13, hint: "Bilinçli olarak bilmek" },
+{ word: "İletişim", points: 14, hint: "Bilgi alışverişi" },
+{ word: "Katıl", points: 14, hint: "Bir gruba dahil olmak" },
+{ word: "Takdir et", points: 14, hint: "Beğenmek ve saygı duymak" },
+{ word: "Araştır", points: 14, hint: "Derinlemesine incelemek" },
+{ word: "Meydan oku", points: 14, hint: "Birine zorluk sunmak" },
+{ word: "Bilgi", points: 15, hint: "Öğrenilen gerçekler" },
+{ word: "Fırsat", points: 15, hint: "İmkan" },
+{ word: "Sorumluluk", points: 15, hint: "Görev, yükümlülük" },
+{ word: "Anlaşma", points: 15, hint: "Karşılıklı uzlaşma" },
+{ word: "Çevre", points: 15, hint: "Etrafımızdaki dünya" },
+{ word: "Gelişim", points: 16, hint: "İlerleme, büyüme" },
+{ word: "Sohbet", points: 16, hint: "Karşılıklı konuşma" },
+{ word: "Bilgi", points: 16, hint: "Öğrenme ürünü" },
+{ word: "Ulaşım", points: 16, hint: "Taşıma sistemi" },
+{ word: "Organizasyon", points: 17, hint: "Yapısal grup" },
+{ word: "Bağımsızlık", points: 17, hint: "Özgür olma" },
+{ word: "Dönüşüm", points: 17, hint: "Değişim, evrim" },
+{ word: "İyileşme", points: 17, hint: "Sağlık kazanma" },
+{ word: "Koruma", points: 18, hint: "Savunma" },
+{ word: "İşbirliği", points: 18, hint: "Beraber çalışma" },
+{ word: "Medeniyet", points: 18, hint: "Gelişmiş toplum" },
+{ word: "Temsil", points: 19, hint: "Başkası adına hareket" },
+{ word: "İletişim", points: 20, hint: "Bilgi aktarma" }
+
+    ];
+
+    let currentWord = "";
+    let displayedWord = "";
+    let score = 0;
+    let totalTime = 60;
+    let timerInterval;
+    let selectedLanguage = "english";
+    let words = englishWords;
+
+    function startGame(language) {
+      selectedLanguage = language;
+      words = language === 'english' ? englishWords : turkishWords;
+
+      document.getElementById('languageSelectionContainer').classList.add('d-none');
+      document.getElementById('gameContainer').classList.remove('d-none');
+
+      if (language === 'english') {
+        document.getElementById('gameTitle').innerText = "Retro Word Guess";
+        document.querySelector('.game-over-message').innerText = "Find the correct word by filling in the missing letters!";
+        document.getElementById('userInput').placeholder = "Enter your guess";
+        document.getElementById('finishBtn').innerText = "Finish Game";
+      } else {
+        document.getElementById('gameTitle').innerText = "Retro Kelime Tahmin";
+        document.querySelector('.game-over-message').innerText = "Eksik harfleri doldurarak doğru kelimeleri bul!";
+        document.getElementById('userInput').placeholder = "Tahminini yaz";
+        document.getElementById('finishBtn').innerText = "Oyunu Bitir";
+      }
+
+      displayNextWord();
+      startTimer();
+    }
+
+    function displayNextWord() {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      currentWord = words[randomIndex].word;
+      const hint = words[randomIndex].hint;
+      displayedWord = removeRandomLetters(currentWord);
+
+      document.getElementById('wordDisplay').innerText = displayedWord;
+      document.getElementById('hintDisplay').innerText = `İpucu: ${hint}`;
+    }
+
+    function startTimer() {
+      document.getElementById("timerDisplay").innerText = `Kalan Süre: ${totalTime} saniye`;
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      totalTime--;
+      document.getElementById("timerDisplay").innerText = `Kalan Süre: ${totalTime} saniye`;
+
+      if (totalTime <= 0) {
+        clearInterval(timerInterval);
+        finishGame();
+      }
+    }
+
+    function removeRandomLetters(word) {
+      let wordArray = word.split("");
+      let indicesToRemove = [];
+      while (indicesToRemove.length < 3) {
+        let randomIndex = Math.floor(Math.random() * word.length);
+        if (!indicesToRemove.includes(randomIndex)) {
+          indicesToRemove.push(randomIndex);
+        }
+      }
+      for (let index of indicesToRemove) {
+        wordArray[index] = "_";
+      }
+      return wordArray.join("");
+    }
+
+    function checkWord() {
+      const userGuess = document.getElementById('userInput').value.toLowerCase();
+      if (userGuess === currentWord.toLowerCase()) {
+        score += words.find(wordObj => wordObj.word.toLowerCase() === currentWord.toLowerCase()).points;
+        document.getElementById('messageDisplay').innerText = selectedLanguage === "english" ? "Correct!" : "Doğru!";
+      } else {
+        // Eğer tahmin yanlışsa, skoru -1 düşür.
+        score -= 1;  // Kesin olarak -1 azaltıyoruz
+        if (score < 0) score = 0;  // Skorun negatif olmaması için kontrol
+
+        document.getElementById('messageDisplay').innerText = selectedLanguage === "english" ? "Try again!" : "Tekrar deneyin!";
+      }
+
+      document.getElementById('scoreDisplay').innerText = `Skor: ${score}`;
+      document.getElementById('userInput').value = '';
+      displayNextWord();
+    }
+
+    function finishGame() {
+      document.getElementById('gameContainer').classList.add('d-none');
+      document.getElementById('languageSelectionContainer').classList.remove('d-none');
+      document.getElementById('finishBtn').classList.add('d-none');
+      alert(`Oyun bitti! Toplam skorunuz: ${score}`);
+      score = 0;
+      totalTime = 180;
+      clearInterval(timerInterval);
+    }
+  </script>
+</body>
+</html>

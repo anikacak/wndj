@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Friends</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #0088cc;
+            border-color: #0088cc;
+        }
+        .btn-primary:hover {
+            background-color: #006699;
+            border-color: #006699;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body text-center">
+                <h1 class="card-title mb-4">Telegram Friends</h1>
+                <p class="card-text mb-4">Click the button below to get your unique friend invitation link!</p>
+                <button id="friendsButton" class="btn btn-primary btn-lg">Get Friend Link</button>
+                <p id="linkMessage" class="mt-3 d-none text-success">Link copied to clipboard!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('friendsButton').addEventListener('click', function() {
+            // Bot username is already a full URL, so we don't need to prepend 'https://t.me/'
+            const botUrl = 'https://t.me/TapCaptain_bot';
+            
+            // Generate a unique identifier for the user
+            const userId = Math.random().toString(36).substring(7);
+            
+            // Create the unique link
+            const link = `${botUrl}?start=${userId}`;
+            
+            // Copy the link to clipboard
+            navigator.clipboard.writeText(link).then(function() {
+                console.log('Link copied to clipboard');
+                document.getElementById('linkMessage').classList.remove('d-none');
+                setTimeout(function() {
+                    document.getElementById('linkMessage').classList.add('d-none');
+                }, 3000);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        });
+    </script>
+</body>
+</html>
